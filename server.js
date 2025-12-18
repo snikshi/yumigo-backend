@@ -11,6 +11,7 @@ const app = express();
 app.use(helmet()); // Hides that you are using Express
 app.use(cors());   // Allows the App to talk to Server
 app.use(express.json()); // Accepts JSON data
+app.set('trust proxy',1)
 
 // Rate Limiting (Stops anyone from spamming the server)
 const limiter = rateLimit({
