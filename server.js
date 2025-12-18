@@ -4,7 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet'); // Security Headers
 const rateLimit = require('express-rate-limit'); // Anti-Spam
 require('dotenv').config();
-
+import foodRouter from "./routes/foodRoute.js";
 const app = express();
 
 // --- 1. SECURITY LAYERS (The Iron Dome) ---
@@ -12,6 +12,7 @@ app.use(helmet()); // Hides that you are using Express
 app.use(cors());   // Allows the App to talk to Server
 app.use(express.json()); // Accepts JSON data
 app.set('trust proxy',1)
+app.use("/api/food", foodRouter);
 
 // Rate Limiting (Stops anyone from spamming the server)
 const limiter = rateLimit({
