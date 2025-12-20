@@ -1,5 +1,6 @@
-const router = require('express').Router();
-const User = require('../models/User');
+import express from 'express';
+import User from '../models/User.js'; // Note the .js at the end!
+const router = express.Router();
 
 // 1. REGISTER API
 router.post('/register', async (req, res) => {
@@ -47,4 +48,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

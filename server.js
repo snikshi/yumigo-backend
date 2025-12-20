@@ -7,7 +7,7 @@ import 'dotenv/config'; // Loads .env variables
 
 // Import the new Food Route
 import foodRouter from "./routes/foodRoute.js";
-
+import authRouter from "./routes/auth.js";
 const app = express();
 
 // --- SECURITY & MIDDLEWARE ---
@@ -18,7 +18,7 @@ app.set('trust proxy', 1);
 
 // --- CONNECT ROUTES ---
 app.use("/api/food", foodRouter); // <--- The new line connects here
-
+app.use("/api/auth", authRouter);
 // --- RATE LIMITING ---
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
