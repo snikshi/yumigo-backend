@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import 'dotenv/config'; // Loads .env variables
+import paymentRouter from "./routes/payment.js";
 
 // Import the new Food Route
 import foodRouter from "./routes/foodRoute.js";
@@ -19,6 +20,7 @@ app.set('trust proxy', 1);
 // --- CONNECT ROUTES ---
 app.use("/api/food", foodRouter); // <--- The new line connects here
 app.use("/api/auth", authRouter);
+app.use("/api/payment", paymentRouter);
 // --- RATE LIMITING ---
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 

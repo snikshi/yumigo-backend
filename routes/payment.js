@@ -1,30 +1,22 @@
-const router = require('express').Router();
-const Stripe = require('stripe');
+import express from 'express';
+// import Order from '../models/Order.js'; // (Uncomment this if you have an Order model later)
+const router = express.Router();
 
-// 👇 PASTE YOUR "sk_test_..." KEY HERE
-const stripe = Stripe('sk_test_51Sfknu08capLH0moS6drp1DglMV9scBTSaiGRBXJbSFjlzVf3UcMV6V8opiEWPnkt210XQZiqkG4eFoWJgaNWWNi00AIRQDQ6H'); 
-
-router.post('/intent', async (req, res) => {
+// MOCK PAYMENT ENDPOINT
+router.post('/', async (req, res) => {
   try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: 49900, // ₹499.00 (In paise)
-      currency: 'inr', // We use Indian Rupees
-      automatic_payment_methods: { enabled: true },
-      description: 'Yumigo Food Order',
-      shipping: {
-        name: 'Test User',
-        address: {
-          line1: 'Hyderabad',
-          city: 'Hyderabad',
-          country: 'IN',
-        },
-      },
-    });
+    const { cartItems, totalPrice, userId } = req.body;
 
-    res.json({ paymentIntent: paymentIntent.client_secret });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    // TODO: In a real app, you would charge Stripe/Razorpay here.
+    // For now, we just say "Success" and save the order.
+
+    // const newOrder = new Order({ userId, items: cartItems, total: totalPrice });
+    // await newOrder.save();
+
+    res.status(200).json({ success: true, message: "Payment Successful!" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-module.exports = router;
+export default router;
