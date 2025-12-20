@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const foodSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    image: { type: String, required: true },
-    category: { type: String, required: true }
-})
+  restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true }, // <--- ADD THIS LINE
+  name: { type: String, required: true },
+  price: { type: Number, required: true },
+  description: { type: String },
+  image: { type: String }, // URL of the food photo
+  category: { type: String }, // e.g., "Burger", "Pizza"
+});
 
-const foodModel = mongoose.models.food || mongoose.model("food", foodSchema);
-export default foodModel;
+export default mongoose.model('Food', foodSchema);
