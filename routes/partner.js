@@ -1,6 +1,6 @@
 import express from 'express';
 import Restaurant from '../models/Restaurant.js';
-import Food from '../models/Food.js'; // Make sure this name matches your file!
+import Food from '../models/foodModel.js'; // Make sure this name matches your file!
 
 const router = express.Router();
 
