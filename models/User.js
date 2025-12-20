@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // The Blueprint
 const UserSchema = new mongoose.Schema({
@@ -11,4 +11,4 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', userSchema);
