@@ -3,10 +3,10 @@ import Stripe from "stripe";
 
 const router = express.Router();
 
-// 🔑 PASTE YOUR STRIPE SECRET KEY HERE (sk_test_...)
+// 🔑 PASTE YOUR SECRET KEY (sk_test_...) HERE
 const stripe = new Stripe("sk_test_51Sfknu08capLH0moS6drp1DglMV9scBTSaiGRBXJbSFjlzVf3UcMV6V8opiEWPnkt210XQZiqkG4eFoWJgaNWWNi00AIRQDQ6H");
 
-// 👇 Notice this is "/intents" now, not "/"
+// 👇 Notice: This creates the "/intents" route the app is looking for!
 router.post("/intents", async (req, res) => {
   try {
     const { amount } = req.body;
@@ -15,13 +15,14 @@ router.post("/intents", async (req, res) => {
         return res.status(400).json({ error: "Amount is required" });
     }
 
-    // Create Payment Intent
+    // Ask Stripe for a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // paise
+      amount: amount * 100, // Convert to paise
       currency: "inr",
       automatic_payment_methods: { enabled: true },
     });
 
+    // Send the secret key back to the App
     res.json({ clientSecret: paymentIntent.client_secret });
 
   } catch (e) {
