@@ -1,21 +1,33 @@
-import express from 'express';
-// import Order from '../models/Order.js'; // (Uncomment this if you have an Order model later)
+import express from "express";
+import Stripe from "stripe";
+
 const router = express.Router();
 
-// MOCK PAYMENT ENDPOINT
-router.post('/', async (req, res) => {
+// 🔑 PASTE YOUR STRIPE SECRET KEY HERE (sk_test_...)
+const stripe = new Stripe("sk_test_51Sfknu08capLH0moS6drp1DglMV9scBTSaiGRBXJbSFjlzVf3UcMV6V8opiEWPnkt210XQZiqkG4eFoWJgaNWWNi00AIRQDQ6H");
+
+router.post("/intents", async (req, res) => {
   try {
-    const { cartItems, totalPrice, userId } = req.body;
+    // 1. Get the amount from the App
+    const { amount } = req.body;
 
-    // TODO: In a real app, you would charge Stripe/Razorpay here.
-    // For now, we just say "Success" and save the order.
+    if (!amount) {
+        return res.status(400).json({ error: "Amount is required" });
+    }
 
-    // const newOrder = new Order({ userId, items: cartItems, total: totalPrice });
-    // await newOrder.save();
+    // 2. Create Payment Intent (Amount in paise: ₹100 = 10000)
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, 
+      currency: "inr",
+      automatic_payment_methods: { enabled: true },
+    });
 
-    res.status(200).json({ success: true, message: "Payment Successful!" });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    // 3. Send Client Secret to App
+    res.json({ clientSecret: paymentIntent.client_secret });
+
+  } catch (e) {
+    console.log("Stripe Error:", e.message);
+    res.status(400).json({ error: e.message });
   }
 });
 

@@ -23,7 +23,7 @@ app.set('trust proxy', 1);
 // --- CONNECT ROUTES ---
 app.use("/api/food", foodRouter); // <--- The new line connects here
 app.use("/api/auth", authRouter);
-app.use("/api/payment", paymentRouter);
+app.use("/api/payments", paymentRouter);
 app.use("/api/partner", partnerRouter);
 app.use("/api/restaurant",restaurantRouter);
 app.use("/api/orders", orderRouter);
