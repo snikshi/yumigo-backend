@@ -25,5 +25,14 @@ foodRouter.get("/list", async (req, res) => {
         res.json({ success: false, message: "Error" });
     }
 });
+// 👇 GET MENU BY RESTAURANT ID
+router.get("/restaurant/:restaurantId", async (req, res) => {
+  try {
+    const foodItems = await Food.find({ restaurantId: req.params.restaurantId });
+    res.status(200).json({ success: true, data: foodItems });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 export default foodRouter;
