@@ -12,6 +12,7 @@ import authRouter from "./routes/auth.js";
 import partnerRouter from "./routes/partner.js";
 import restaurantRouter from "./routes/restaurantRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import rideRouter from "./routes/rideRoutes.js";
 const app = express();
 
 // --- SECURITY & MIDDLEWARE ---
@@ -27,6 +28,7 @@ app.use("/api/payments", paymentRouter);
 app.use("/api/partner", partnerRouter);
 app.use("/api/restaurant",restaurantRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/rides", rideRouter);
 // --- RATE LIMITING ---
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
