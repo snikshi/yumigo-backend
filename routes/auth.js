@@ -1,5 +1,6 @@
 import express from 'express';
 import User from '../models/User.js'; // Note the .js at the end!
+import mongoose from "mongoose"; // 👈 Add this at the VERY TOP of the file
 const router = express.Router();
 
 // 1. REGISTER API
@@ -50,23 +51,24 @@ router.post('/login', async (req, res) => {
 
 // 👇 UPDATE USER DETAILS
 // 👇 UPDATE USER DETAILS
+
+// 👇 ROBUST UPDATE ROUTE
 router.put("/update", async (req, res) => {
   try {
-    const { userId, name, email } = req.body;
+    let { userId, name, email } = req.body;
 
-    // 🕵️ DEBUG LOGS (Check your Render Logs for this!)
-    console.log("--------------------------------");
-    console.log("📢 UPDATE REQUEST RECEIVED");
-    console.log("📥 ID Received:", userId);
-    console.log("📥 Name:", name);
-    console.log("--------------------------------");
+    // 🧹 1. CLEAN THE ID (Remove hidden spaces)
+    userId = userId.trim();
 
-    // Check if ID is valid format
-    if (!userId) {
-        console.log("❌ Error: User ID is missing!");
-        return res.status(400).json({ error: "User ID is missing" });
+    console.log("🔍 Searching for Clean ID:", userId);
+
+    // 🛡️ 2. CHECK IF ID IS VALID MONGO FORMAT
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.log("❌ Error: Invalid ID format");
+        return res.status(400).json({ error: "Invalid User ID format" });
     }
 
+    // 🔍 3. FIND AND UPDATE
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { name, email },
@@ -74,16 +76,16 @@ router.put("/update", async (req, res) => {
     );
 
     if (!updatedUser) {
-      console.log("❌ Error: Database could not find ID:", userId); // 👈 THIS IS KEY
-      return res.status(404).json({ error: "User not found" });
+      console.log("❌ Error: ID valid but not found in DB.");
+      return res.status(404).json({ error: "User not found in Database" });
     }
 
-    console.log("✅ Success: User updated!");
+    console.log("✅ Success: Profile Updated for", updatedUser.name);
     res.json({ success: true, user: updatedUser });
 
   } catch (error) {
     console.error("Update Error:", error);
-    res.status(500).json({ error: "Could not update profile" });
+    res.status(500).json({ error: "Server error during update" });
   }
 });
 
