@@ -49,22 +49,38 @@ router.post('/login', async (req, res) => {
 });
 
 // 👇 UPDATE USER DETAILS
+// 👇 UPDATE USER DETAILS
 router.put("/update", async (req, res) => {
   try {
     const { userId, name, email } = req.body;
 
-    // Find the user and update their details
+    // 🕵️ DEBUG LOGS (Check your Render Logs for this!)
+    console.log("--------------------------------");
+    console.log("📢 UPDATE REQUEST RECEIVED");
+    console.log("📥 ID Received:", userId);
+    console.log("📥 Name:", name);
+    console.log("--------------------------------");
+
+    // Check if ID is valid format
+    if (!userId) {
+        console.log("❌ Error: User ID is missing!");
+        return res.status(400).json({ error: "User ID is missing" });
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { name, email },
-      { new: true } // Return the updated data
+      { new: true }
     );
 
     if (!updatedUser) {
+      console.log("❌ Error: Database could not find ID:", userId); // 👈 THIS IS KEY
       return res.status(404).json({ error: "User not found" });
     }
 
+    console.log("✅ Success: User updated!");
     res.json({ success: true, user: updatedUser });
+
   } catch (error) {
     console.error("Update Error:", error);
     res.status(500).json({ error: "Could not update profile" });
