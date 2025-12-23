@@ -3,25 +3,27 @@ import Order from "../models/Order.js";
 
 const router = express.Router();
 
-// 1. CREATE NEW ORDER (When user clicks Checkout)
+// 1. CREATE ORDER (You already have this)
 router.post("/create", async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
-    const savedOrder = await newOrder.save();
-    res.status(200).json({ success: true, data: savedOrder });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const { userId, items, totalPrice, status } = req.body;
+    const newOrder = new Order({ userId, items, totalPrice, status });
+    await newOrder.save();
+    res.json({ success: true, order: newOrder });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// 2. GET MY ORDERS (For Profile History)
-// We will send the UserID, and the server gives back ONLY their orders
-router.get("/myorders/:userId", async (req, res) => {
+// 👇 2. GET USER HISTORY (Add this new part!)
+router.get("/user/:userId", async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.userId }).sort({ date: -1 }); // Newest first
-    res.status(200).json({ success: true, data: orders });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const { userId } = req.params;
+    // Get orders for this user, newest first
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: "Could not fetch history" });
   }
 });
 
