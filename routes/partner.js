@@ -1,48 +1,46 @@
-import express from 'express';
-import Restaurant from '../models/Restaurant.js';
-import Food from '../models/foodModel.js'; // Make sure this name matches your file!
+import express from "express";
+import Order from "../models/Order.js"; // 👈 Make sure we import the Order model
 
 const router = express.Router();
 
-// 1. REGISTER A NEW RESTAURANT
-router.post('/register', async (req, res) => {
+// 👇 GET ALL ORDERS WAITING FOR A DRIVER
+router.get("/available-orders", async (req, res) => {
   try {
-    const { ownerId, name, address, image, description } = req.body;
+    // Find orders where status is "Preparing"
+    // (In a real app, you'd also filter by location/city)
+    const orders = await Order.find({ status: "Preparing" }).sort({ createdAt: -1 });
     
-    // Create the restaurant
-    const newRestaurant = new Restaurant({ ownerId, name, address, image, description });
-    await newRestaurant.save();
-
-    res.status(201).json({ success: true, message: "Restaurant Registered!", data: newRestaurant });
+    res.json(orders);
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ error: "Could not fetch orders" });
   }
 });
 
-// 2. ADD FOOD TO MY RESTAURANT
-router.post('/add-food', async (req, res) => {
+// 👇 DRIVER ACCEPTS AN ORDER
+router.post("/accept-order", async (req, res) => {
   try {
-    const { restaurantId, name, price, description, image, category } = req.body;
+    const { orderId, driverId } = req.body;
 
-    const newFood = new Food({ restaurantId, name, price, description, image, category });
-    await newFood.save();
+    // Update status to "On the Way" and assign the driver
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { 
+        status: "On the Way", 
+        driverId: driverId 
+      },
+      { new: true } // Return the updated version
+    );
 
-    res.status(201).json({ success: true, message: "Menu Item Added!", data: newFood });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// 3. GET MY RESTAURANT DETAILS (By Owner ID)
-router.get('/my-restaurant/:ownerId', async (req, res) => {
-    try {
-        const restaurant = await Restaurant.findOne({ ownerId: req.params.ownerId });
-        if(!restaurant) return res.status(404).json({ success: false, message: "No restaurant found."});
-        
-        res.status(200).json({ success: true, data: restaurant });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
     }
+
+    res.json({ success: true, order: updatedOrder });
+  } catch (error) {
+    console.error("Error accepting order:", error);
+    res.status(500).json({ error: "Could not accept order" });
+  }
 });
 
 export default router;
