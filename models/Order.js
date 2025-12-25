@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true }, // Who bought it?
+    userId: { type: String, required: true },
+    
+    // 👇 NEW FIELDS ADDED HERE
+    rideId: { type: String, default: null }, // Links to the specific taxi ride
+    scheduledFor: { type: Date, default: null }, // If "Hold" is active, this is the release time
+    
     items: [
       {
         name: { type: String, required: true },
@@ -10,10 +15,10 @@ const orderSchema = new mongoose.Schema(
         price: { type: Number, required: true },
         image: { type: String }
       }
-    ], // What did they buy?
-    totalPrice: { type: Number, required: true }, // How much?
-    status: { type: String, default: "Preparing" }, // Preparing -> On the Way -> Delivered
-    date: { type: Date, default: Date.now } // When?
+    ],
+    totalPrice: { type: Number, required: true },
+    status: { type: String, default: "Preparing" }, // e.g., "Scheduled", "Preparing", "Delivered"
+    date: { type: Date, default: Date.now }
   },
   { timestamps: true }
 );

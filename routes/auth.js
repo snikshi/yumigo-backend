@@ -25,24 +25,25 @@ router.post('/register', async (req, res) => {
 });
 
 // 2. LOGIN API (This is the new part!)
+// Inside router.post('/login', ...)
+
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    // 👇 1. CLEAN THE INPUT (Remove spaces)
+   if (email) email = email.trim();
+    console.log("🔍 Login Attempt for:", email); // Debug Log
 
     // A. Check if user exists
     const user = await User.findOne({ email });
+    
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      console.log("❌ User not found in DB");
+      return res.status(400).json({ message: "User not found. Please Register first." });
     }
 
-    // B. Check if password matches
-    // (Note: In a real app, we would use encryption here. For now, we compare directly.)
-    if (password !== user.password) {
-      return res.status(400).json({ message: "Wrong password" });
-    }
-
-    // C. Success!
-    res.status(200).json({ message: "Login Successful", user: user });
+    // ... rest of your code ...
 
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -58,8 +59,7 @@ router.put("/update", async (req, res) => {
     let { userId, name, email } = req.body;
 
     // 🧹 1. CLEAN THE ID (Remove hidden spaces)
-    userId = userId.trim();
-
+    if (userId) userId = userId.trim();
     console.log("🔍 Searching for Clean ID:", userId);
 
     // 🛡️ 2. CHECK IF ID IS VALID MONGO FORMAT
