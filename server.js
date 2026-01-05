@@ -14,10 +14,14 @@ import restaurantRouter from "./routes/restaurantRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
 import rideRouter from "./routes/rideRoutes.js";
 import productRoutes from './routes/productRoutes.js'; // 👈 Import
+// In server.js
+import mongoSanitize from 'express-mongo-sanitize';
+
 const app = express();
 
 // --- SECURITY & MIDDLEWARE ---
 app.use(helmet());
+app.use(mongoSanitize());
 app.use(cors());
 app.use(express.json()); // Accepts JSON data
 app.set('trust proxy', 1);
