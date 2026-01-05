@@ -5,6 +5,11 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   phone: { type: String, default: "" },
+  
+  // 🟢 NEW: Web3 Wallet Fields
+  walletAddress: { type: String, default: "" }, 
+  walletPrivateKey: { type: String, select: false }, // 'select: false' hides it by default for security
+
   isGoldMember: { type: Boolean, default: false },
   walletBalance: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
