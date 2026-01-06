@@ -4,13 +4,12 @@ import Order from '../models/Order.js';
 
 const router = express.Router();
 
-// 🤖 THE AI LOGIC
 router.post('/chat', async (req, res) => {
   try {
-    // 1. SAFETY CHECK (Prevents 500 Crash)
+    // 🛡️ SAFETY CHECK: Prevents 500 Crash
     if (!req.body || !req.body.message) {
-        return res.status(400).json({ 
-            reply: "Please say something! 🎤", 
+        return res.status(200).json({ 
+            reply: "Hi! I'm Yumi. How can I help? 🍔", 
             action: "none" 
         });
     }
@@ -20,64 +19,30 @@ router.post('/chat', async (req, res) => {
     
     let aiDecision = { text: "I'm thinking...", action: "none" };
 
-    // 2. SIMPLE KEYWORD DETECTION
-    if (lowerMsg.includes("pizza") || lowerMsg.includes("burger") || lowerMsg.includes("biryani") || lowerMsg.includes("cake")) {
+    // ... (Keep your existing keyword logic here) ...
+    if (lowerMsg.includes("pizza") || lowerMsg.includes("burger")) {
         aiDecision = { text: "Yum! Let me find that for you.", action: "search_food", query: lowerMsg };
     } 
-    else if (lowerMsg.includes("help") || lowerMsg.includes("support") || lowerMsg.includes("late")) {
-        aiDecision = { text: "Checking your order status...", action: "support", query: "status" };
-    } 
-    else if (lowerMsg.includes("hello") || lowerMsg.includes("hi")) {
-        aiDecision = { text: "Hello! I am Yumi. Hungry? 🍔", action: "none" };
-    }
     else {
-        aiDecision = { text: "I love food! Try asking for 'Spicy Biryani' or 'Help'.", action: "none" };
+        aiDecision = { text: "I can help you find food or check orders.", action: "none" };
     }
+    // ...
 
-    // 3. PERFORM ACTION
+    // EXECUTE ACTION
     let data = null;
-
     if (aiDecision.action === 'search_food') {
         const regex = new RegExp(aiDecision.query.split(" ")[0], 'i');
         data = await Product.find({ name: regex }).limit(5);
-        
-        if (data.length > 0) {
-            aiDecision.text = `Found ${data.length} yummy options! 😋`;
-        } else {
-            aiDecision.text = "I couldn't find exactly that, but I'm looking! 🤖";
-        }
+        if (data.length > 0) aiDecision.text = `Found ${data.length} options! 😋`;
+        else aiDecision.text = "Searching...";
     } 
-    else if (aiDecision.action === 'support') {
-        if (userId) {
-            const lastOrder = await Order.findOne({ userId }).sort({ createdAt: -1 });
-            if (lastOrder) {
-                aiDecision.text = `Your order from ${lastOrder.items?.[0]?.name || 'restaurant'} is: ${lastOrder.status || 'Preparing'}.`;
-                data = lastOrder;
-            } else {
-                aiDecision.text = "You haven't ordered anything yet. Hungry? 🍕";
-            }
-        } else {
-            aiDecision.text = "Please log in so I can check your order.";
-        }
-    }
 
-    // 4. SEND RESPONSE
-    res.json({
-        reply: aiDecision.text,
-        action: aiDecision.action,
-        data: data 
-    });
+    res.json({ reply: aiDecision.text, action: aiDecision.action, data });
 
   } catch (error) {
     console.error("AI Error:", error);
-    // Return JSON error instead of crashing
-    res.status(500).json({ reply: "My brain froze! 🥶 Try again." });
+    res.status(500).json({ reply: "My brain froze! 🥶" });
   }
-});
-
-router.post('/feedback', (req, res) => {
-    console.log("AI Feedback received:", req.body);
-    res.json({ success: true });
 });
 
 export default router;
