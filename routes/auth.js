@@ -3,8 +3,16 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ethers } from 'ethers';
+import rateLimit from 'express-rate-limit'; // 👈 1. Added Import
 
 const router = express.Router();
+
+// 🔒 2. Define Limiter BEFORE using it
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 login requests per window
+    message: "Too many login attempts, please try again later"
+});
 
 // Helper: Create a new Ethereum Wallet
 const createWeb3Wallet = () => {
@@ -60,12 +68,13 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 2. LOGIN
-router.post('/login', async (req, res) => {
+// 2. LOGIN (With Rate Limiter applied here)
+// 👈 3. Added loginLimiter middleware here
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Find user and explicitly select the password field to compare
+    // Find user
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -93,7 +102,6 @@ router.post('/login', async (req, res) => {
 
 // 3. UPDATE (Protected)
 router.put("/update", async (req, res) => {
-    // You should verify the JWT token here in a real middleware
     const { userId, ...updates } = req.body;
     try {
         const updatedUser = await User.findByIdAndUpdate(userId, updates, { new: true });
@@ -102,11 +110,7 @@ router.put("/update", async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // Limit each IP to 5 login requests per window
-    message: "Too many login attempts, please try again later"
-});
-router.post('/login', loginLimiter, async (req, res) => {  });
+
+// ❌ I REMOVED THE DUPLICATE EMPTY LOGIN ROUTE THAT WAS HERE
 
 export default router;
