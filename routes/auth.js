@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { ethers } from 'ethers';
-import rateLimit from 'express-rate-limit'; // 👈 1. Added Import
+import rateLimit from 'express-rate-limit'; // 👈 1. Added Missing Import
 
 const router = express.Router();
 
@@ -32,11 +32,8 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: "User already exists!" });
     }
 
-    // 🔒 Security: Hash Password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-
-    // 🔗 Web3: Generate Wallet
     const cryptoWallet = createWeb3Wallet();
 
     const newUser = new User({ 
@@ -49,7 +46,6 @@ router.post('/register', async (req, res) => {
     
     await newUser.save();
 
-    // 🎟️ Issue Token
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({ 
@@ -68,13 +64,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 2. LOGIN (With Rate Limiter applied here)
-// 👈 3. Added loginLimiter middleware here
+// 2. LOGIN (With Rate Limiter applied)
+// 👈 3. Applied middleware here. Removed the duplicate empty route at the bottom.
 router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Find user
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -110,7 +105,5 @@ router.put("/update", async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
-
-// ❌ I REMOVED THE DUPLICATE EMPTY LOGIN ROUTE THAT WAS HERE
 
 export default router;
