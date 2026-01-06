@@ -16,6 +16,7 @@ import rideRouter from "./routes/rideRoutes.js";
 import productRoutes from './routes/productRoutes.js'; // 👈 Import
 // In server.js
 import mongoSanitize from 'express-mongo-sanitize';
+import aiRoutes from './routes/aiRoutes.js';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use(mongoSanitize());
 app.use(cors());
 app.use(express.json()); // Accepts JSON data
 app.set('trust proxy', 1);
+app.use('/api/ai', aiRoutes);
 
 // --- CONNECT ROUTES ---
 app.use("/api/food", foodRouter); // <--- The new line connects here
