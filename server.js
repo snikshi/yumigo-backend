@@ -17,6 +17,7 @@ import productRoutes from './routes/productRoutes.js'; // 👈 Import
 // In server.js
 import mongoSanitize from 'express-mongo-sanitize';
 import aiRoutes from './routes/aiRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
 
 const app = express();
 
@@ -26,7 +27,8 @@ app.use(mongoSanitize());
 app.use(cors());
 app.use(express.json()); // Accepts JSON data
 app.set('trust proxy', 1);
-app.use('/api/ai', aiRoutes);
+
+
 
 // --- CONNECT ROUTES ---
 app.use("/api/food", foodRouter); // <--- The new line connects here
@@ -37,6 +39,8 @@ app.use("/api/restaurant",restaurantRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/rides", rideRouter);
 app.use('/api/products', productRoutes); // 👈 Enable
+app.use('/api/ai', aiRoutes);
+app.use('/api/wallet', walletRoutes);
 // --- RATE LIMITING ---
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, 
